@@ -2,16 +2,18 @@
 
 Fine-tuning and evaluation notes for Persian automatic speech recognition with Whisper Large v3.
 
+[View the published fine-tuned model on Hugging Face](https://huggingface.co/MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch)
+
 ## Reported experiment checkpoints
 
-The following figures are historical results reported for this project. The original repository did not include the exact held-out evaluation manifest, so these values are not independently reproducible from the repository alone.
+These are historical project results, not verified held-out benchmark scores. The model card metadata for the 7-epoch result lists the evaluated split as `train+validation+validated+test`, which includes training data. Therefore, its WER should not be presented as a generalization score on an untouched test set.
 
-| Run | Reported result | How to interpret it |
+| Run | Reported result | Available detail |
 | --- | --- | --- |
-| Final fine-tuning run (7 epochs) | WER 34.60% → 26.85% | Reported before/after result; held-out split and scoring normalization need to be confirmed. |
-| Learning-rate sweep (3 epochs) | WER 14.86% at a reported learning rate of 1e-7/1e-8 | A separate run, not the final checkpoint result above. The original notes do not make the exact LR/checkpoint association or evaluation split sufficiently clear. |
+| Final fine-tuning run (7 epochs) | WER 34.60% → 26.85% | Model card metadata lists `train+validation+validated+test`; the exact manifest and scoring normalization are not included. |
+| Learning-rate sweep (3 epochs) | WER 14.86% at 1e-7 and 1e-8 | A separate run in the project notes. The exact checkpoint, split, manifest, and scoring normalization are not documented. |
 
-Do not compare these numbers as if they came from the same checkpoint or test set. To publish a verified headline score, evaluate a fixed, untouched test manifest and commit the manifest schema, command, normalization, sample count, and JSON output (without redistributing audio or transcripts unless their licenses permit it).
+These figures come from separate runs and should not be compared as if they used the same checkpoint or test set. To publish a verified headline score, evaluate a fixed, untouched test manifest that was excluded from training and model selection. Record the model revision, manifest version, normalization, sample count, command, and JSON output. Do not redistribute audio or transcripts unless their licenses permit it.
 
 ### Previously reported setup
 
@@ -39,11 +41,11 @@ sample_id,audio_path,reference
 sample-001,audio/001.mp3,متن مرجع فارسی
 ```
 
-Run the evaluator against the actual model ID or a local checkpoint:
+Run the evaluator against the published model or a local checkpoint:
 
 ```bash
 python evaluate_whisper.py \
-  --model "/path/to/model-or-hugging-face-id" \
+  --model "MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch" \
   --manifest manifest.csv \
   --device cuda:0 \
   --batch-size 4 \
@@ -63,5 +65,5 @@ The evaluator intentionally writes predictions locally. Review the output before
 ## Project links
 
 - [GitHub profile](https://github.com/MohammadRezaHalakoo)
-- [Hugging Face profile](https://huggingface.co/MohammadReza-Halakoo)
+- [Hugging Face model](https://huggingface.co/MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch)
 - [LinkedIn profile](https://www.linkedin.com/in/mohammadreza-halakoo/)
