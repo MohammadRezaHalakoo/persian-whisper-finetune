@@ -39,18 +39,18 @@ sample_id,audio_path,reference
 sample-001,audio/001.mp3,متن مرجع فارسی
 ```
 
-Run the evaluator against a model ID or local checkpoint:
+Run the evaluator against the actual model ID or a local checkpoint:
 
 ```bash
 python evaluate_whisper.py \
-  --model MohammadReza-Halakoo/whisper-large-v3-fa \
+  --model "/path/to/model-or-hugging-face-id" \
   --manifest manifest.csv \
   --device cuda:0 \
   --batch-size 4 \
   --output results/whisper-evaluation.json
 ```
 
-Change `--model` to the actual model or checkpoint you want to evaluate. Use the same fixed manifest, model revision, chunking settings, and scoring rules for comparisons. The evaluator normalizes Unicode to NFC, maps Arabic yeh/kaf to Persian forms, replaces ZWNJ with a space, removes Persian/Arabic diacritics and punctuation, and collapses whitespace before WER scoring.
+Use the same fixed manifest, model revision, chunking settings, and scoring rules for comparisons. The evaluator normalizes Unicode to NFC, maps Arabic yeh/kaf to Persian forms, replaces ZWNJ with a space, removes Persian/Arabic diacritics and punctuation, and collapses whitespace before WER scoring.
 
 Run the lightweight normalization tests with:
 
