@@ -1,152 +1,69 @@
-```yaml
-library_name: transformers
-language:
-- fa
-license: apache-2.0
-base_model: openai/whisper-large-v3
-tags:
-- generated_from_trainer
-datasets:
-- mozilla-foundation-common-voice-17-0
-metrics:
-- wer
-model-index:
-- name: Whisper LargeV3 Persian - Persian ASR
-  results:
-  - task:
-      name: Automatic Speech Recognition
-      type: automatic-speech-recognition
-    dataset:
-      name: common-voice-17-0
-      type: mozilla-foundation-common-voice-17-0
-      config: fa
-      split: None
-      args: 'config: Persian, split: train+validation+validated+test'
-    metrics:
-    - name: Wer
-      type: wer
-      value: 26.85
-```
-# 🎯 TL;DR
-Fine-tuned Whisper Large V3 for Persian Automatic Speech Recognition (ASR)
-📊 Trained on ~370K noisy Persian samples (Common Voice 17.0)
-📉 Reduced WER from 34.6% → 26.85% after 7 epochs on NVIDIA H100
+# Persian Whisper Fine-Tuning
 
-👉 [View Model on HuggingFace](https://huggingface.co/MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch)
+Fine-tuning and evaluation notes for Persian automatic speech recognition with Whisper Large v3.
 
-# 🎙️ Whisper LargeV3 Persian - Persian ASR  
+[View the published fine-tuned model on Hugging Face](https://huggingface.co/MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch)
 
-This is a fine-tuned version of [openai/whisper-large-v3](https://huggingface.co/openai/whisper-large-v3)  
-for **Persian Automatic Speech Recognition (ASR) or Speech-to-text** It was trained on the Common Voice 17.0 dataset and optimized for noisy environments.  
+## Reported experiment checkpoints
 
+These are historical project results, not verified held-out benchmark scores. The model card metadata for the 7-epoch result lists the evaluated split as `train+validation+validated+test`, which includes training data. Therefore, its WER should not be presented as a generalization score on an untouched test set.
 
----
+| Run | Reported result | Available detail |
+| --- | --- | --- |
+| Final fine-tuning run (7 epochs) | WER 34.60% → 26.85% | Model card metadata lists `train+validation+validated+test`; the exact manifest and scoring normalization are not included. |
+| Learning-rate sweep (3 epochs) | WER 14.86% at 1e-7 and 1e-8 | A separate run in the project notes. The exact checkpoint, split, manifest, and scoring normalization are not documented. |
 
-## ✨ Highlights
-- 🗣️ Trained on **370K Persian audio samples** (40% noisy)  
-- 📉 Reduced **WER** from **34.6% → 26.85%** after 7 epochs  
-- ⚡ Supports **long audio transcription** with improved robustness in noisy environments  
-- 🔬 Optimized with **LR tuning, noise augmentation, mixed-precision AMP**  
+These figures come from separate runs and should not be compared as if they used the same checkpoint or test set. To publish a verified headline score, evaluate a fixed, untouched test manifest that was excluded from training and model selection. Record the model revision, manifest version, normalization, sample count, command, and JSON output. Do not redistribute audio or transcripts unless their licenses permit it.
 
----
+### Previously reported setup
 
-## 📌 Model Description
-The Whisper Large-V3 Persian model is a fine-tuned version of OpenAI’s Whisper large model,  
-specifically adapted for Persian ASR. It uses **Mel-spectrogram features** and advanced tokenization,  
-providing strong transcription performance in real-world noisy conditions.  
+- Dataset: Persian Common Voice 17.0; project notes report 368,172 samples.
+- The project notes describe about 40% of the data as noisy; the noise-labeling method was not recorded in the repository.
+- Reported training setup: 2 × H100 PCIe 80 GB, about 10.6 days, learning rate 1e-7, batch size 20, mixed precision fp16.
+- These are project-reported settings, not independently verified benchmark claims.
 
----
+## Reproducible local evaluation
 
-## 🚀 Intended Uses & Limitations
-**Intended Uses** ✅  
-- Transcribing Persian audio into text  
-- Voice assistants, transcription services, educational apps  
-- Handling noisy real-world environments  
+The repository includes a local evaluator that reads a CSV manifest and writes per-sample predictions plus aggregate WER. It does not download or expose dataset audio.
 
-**Limitations** ⚠️  
-- Lower accuracy on **rare dialects**  
-- May require additional fine-tuning for **domain-specific audio**  
+Install the dependencies:
 
----
-
-## 📊 Training & Evaluation Data
-- Dataset: **Mozilla Common Voice 17.0 (Persian)**  
-- Training samples: **368,172** (≈40% noisy)  
-- Evaluation metric: **WER**  
-
----
-
-## ⚙️ Training Procedure
-**Hyperparameters:**  
-- learning_rate: `1e-07`  
-- train_batch_size: `20`  
-- eval_batch_size: `20`  
-- optimizer: `Adam (β1=0.9, β2=0.999, ε=1e-08)`  
-- lr_scheduler: `linear (warmup=500 steps)`  
-- num_epochs: `7`  
-- precision: `AMP (fp16)`  
-
----
-
-## 📈 Learning Rate Experiments
-| Learning Rate | Epoch | Eval Loss | WER   |
-|:-------------:|:-----:|:---------:|:-----:|
-| 5e-06         | 3     | 0.4506    | 38.34% |
-| 4.375e-06     | 3     | 0.3191    | 30.99% |
-| 4e-06         | 3     | 0.2765    | 27.48% |
-| 1e-05         | 3     | 0.1734    | 22.52% |
-| 1e-06         | 3     | 0.1528    | 18.05% |
-| 1e-07         | 3     | 0.1577    | 14.86% |
-| 1e-08         | 3     | 0.1577    | 14.86% |
-
-**Conclusion:**  
-- ✅ Best learning rates: **1e-07, 1e-08** (stable gradients & lowest WER)  
-- ❌ Higher LRs caused gradient instability and worse WER  
-
----
-
-## 📉 Training Results
-- Final training loss: **0.2004**  
-- Final validation loss: **0.2368**  
-- Final WER: **26.85%**  
-
-### WER by Epoch
-| Epoch | WER    | Change   |
-|:-----:|:------:|:--------:|
-| 1     | 34.60% | -        |
-| 2     | 31.42% | -3.18%   |
-| 3     | 29.37% | -2.05%   |
-| 4     | 28.17% | -1.20%   |
-| 5     | 27.42% | -0.75%   |
-| 6     | 26.95% | -0.47%   |
-| 7     | 26.85% | -0.10%   |
-
----
-
-## 🖥️ Hardware Utilization
-- GPUs: **2 × NVIDIA H100 PCIe (80GB)**  
-- RAM: **17.05 GiB**  
-- Swap: **1.9 GiB (≈100%)**  
-- Training runtime: **10.6 days**  
-
----
-
-## 🔮 Future Improvements
-- More **epochs** (+8 → WER < 20%)  
-- **Data augmentation** & noise filtering  
-- **Dropout / regularization** for better generalization  
-- Exploring **hybrid ASR architectures**  
-
----
-
-📬 Contact
-
-📧 Email: halakoo.mohammadreza@gmail.com
-
-🤗 HuggingFace: [MohammadReza Halakoo](https://huggingface.co/MohammadReza-Halakoo)
-
-💼 LinkedIn: [MohammadReza Halakoo](https://www.linkedin.com/in/mohammadreza-halakoo)
-
-## 📦 Installation
 ```bash
-pip install torch torchaudio transformers datasets accelerate jiwer librosa evaluate soundfile
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-eval.txt
+```
+
+Create a local `manifest.csv` (keep audio and transcripts private unless you have permission to publish them):
+
+```csv
+sample_id,audio_path,reference
+sample-001,audio/001.mp3,متن مرجع فارسی
+```
+
+Run the evaluator against the published model or a local checkpoint:
+
+```bash
+python evaluate_whisper.py \
+  --model "MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch" \
+  --manifest manifest.csv \
+  --device cuda:0 \
+  --batch-size 4 \
+  --output results/whisper-evaluation.json
+```
+
+Use the same fixed manifest, model revision, chunking settings, and scoring rules for comparisons. The evaluator normalizes Unicode to NFC, maps Arabic yeh/kaf to Persian forms, replaces ZWNJ with a space, removes Persian/Arabic diacritics and punctuation, and collapses whitespace before WER scoring.
+
+Run the lightweight normalization tests with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The evaluator intentionally writes predictions locally. Review the output before publishing it: it contains recognized text and local audio paths.
+
+## Project links
+
+- [GitHub profile](https://github.com/MohammadRezaHalakoo)
+- [Hugging Face model](https://huggingface.co/MohammadReza-Halakoo/1-persian-whisper-large-v3-train-validation-tested-100-percent-17-0-7-epoch)
+- [LinkedIn profile](https://www.linkedin.com/in/mohammadreza-halakoo/)
